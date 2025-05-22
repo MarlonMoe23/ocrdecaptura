@@ -81,13 +81,11 @@ export default function Home() {
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(ocrText);
-        alert('Texto copiado al portapapeles 👍');
       } else {
         // Fallback para navegadores más antiguos
         if (textAreaRef.current) {
           textAreaRef.current.select();
           document.execCommand('copy');
-          alert('Texto copiado al portapapeles 👍');
         }
       }
     } catch (error) {
@@ -95,7 +93,6 @@ export default function Home() {
       if (textAreaRef.current) {
         textAreaRef.current.select();
         document.execCommand('copy');
-        alert('Texto copiado al portapapeles 👍');
       }
     }
   };
@@ -125,7 +122,7 @@ export default function Home() {
             
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="flex-1 bg-purple-600 text-white font-semibold py-2 px-4 rounded-xl hover:bg-purple-700 transition duration-200 text-sm md:text-base"
+              className="flex-1 bg-orange-600 text-white font-semibold py-2 px-4 rounded-xl hover:bg-orange-700 transition duration-200 text-sm md:text-base"
             >
               📁 Seleccionar archivo
             </button>
