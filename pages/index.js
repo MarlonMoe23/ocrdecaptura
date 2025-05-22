@@ -49,44 +49,56 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <h1 className="text-2xl font-bold mb-4">OCR App – Pega tu captura (Ctrl+V)</h1>
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-6">
+      <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-8">
+        <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">
+          🧠 OCR del portapapeles App 
+        </h1>
 
-      <div className="border-dashed border-4 border-gray-400 p-8 rounded-lg bg-white text-center">
-        <p className="text-gray-600 mb-2">Pega una imagen con <strong>Ctrl + V</strong></p>
-        {imageSrc ? (
-          <img
-            src={imageSrc}
-            alt="Pasted"
-            className="mx-auto max-h-[400px] mt-4 rounded shadow"
-          />
-        ) : (
-          <p className="italic text-gray-400">No hay imagen aún</p>
+        <div className="border-4 border-dashed border-gray-300 rounded-xl p-6 bg-gray-50 text-center">
+          <p className="text-gray-600 text-lg">
+            Pega una imagen con <span className="font-bold">Ctrl + V</span>
+          </p>
+
+          {imageSrc ? (
+            <img
+              src={imageSrc}
+              alt="Pasted"
+              className="mx-auto mt-4 max-h-[300px] rounded-xl shadow"
+            />
+          ) : (
+            <p className="italic text-gray-400 mt-4">No hay imagen aún</p>
+          )}
+        </div>
+
+        {isProcessing && (
+          <p className="text-blue-600 mt-4 font-medium text-center">
+            Procesando imagen con OCR...
+          </p>
+        )}
+
+        {ocrText && (
+          <div className="mt-8">
+            <h2 className="text-xl font-semibold text-gray-700 mb-2">Texto reconocido:</h2>
+            <textarea
+              ref={textAreaRef}
+              value={ocrText}
+              onChange={(e) => setOcrText(e.target.value)}
+              className="w-full h-48 p-4 border border-gray-300 rounded-xl bg-white text-black shadow-inner resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              onClick={copyToClipboard}
+              className="mt-4 w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl hover:bg-blue-700 transition duration-200"
+            >
+              📋 Copiar texto al portapapeles
+            </button>
+          </div>
         )}
       </div>
 
-      {isProcessing && (
-        <p className="text-blue-600 mt-4 font-medium">Procesando texto con OCR...</p>
-      )}
-
-      {ocrText && (
-        <div className="mt-6">
-          <h2 className="text-lg font-semibold mb-2">Texto reconocido:</h2>
-          <textarea
-            ref={textAreaRef}
-            value={ocrText}
-            onChange={(e) => setOcrText(e.target.value)}
-            className="w-full h-48 p-4 border border-gray-700 rounded shadow bg-white text-black"
-          />
-          <button
-            onClick={copyToClipboard}
-            className="mt-3 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-            type="button"
-          >
-            Copiar texto
-          </button>
-        </div>
-      )}
+      <p className="text-center text-gray-500 mt-6 text-sm">
+        Desarrollado por Marlon Ortiz usando Next.js + Tesseract.js
+      </p>
     </div>
   );
 }
