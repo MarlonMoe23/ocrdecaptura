@@ -112,12 +112,7 @@ export default function Home() {
           {/* Botones para móviles */}
           <div className="flex flex-col sm:flex-row gap-3 mb-4">
             {canPasteFromClipboard && (
-              <button
-                onClick={pasteFromClipboard}
-                className="flex-1 bg-green-600 text-white font-semibold py-2 px-4 rounded-xl hover:bg-green-700 transition duration-200 text-sm md:text-base"
-              >
-                📋 Pegar del portapapeles
-              </button>
+              
             )}
             
             <button
