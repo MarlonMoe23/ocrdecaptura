@@ -5,16 +5,10 @@ export default function Home() {
   const [imageSrc, setImageSrc] = useState(null);
   const [ocrText, setOcrText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [canPasteFromClipboard, setCanPasteFromClipboard] = useState(false);
   const textAreaRef = useRef(null);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
-    // Verificar si el navegador soporta la API del portapapeles
-    if (navigator.clipboard && navigator.clipboard.read) {
-      setCanPasteFromClipboard(true);
-    }
-
     const handlePaste = async (event) => {
       const items = event.clipboardData.items;
       for (let item of items) {
@@ -51,25 +45,6 @@ export default function Home() {
     }
   };
 
-  const pasteFromClipboard = async () => {
-    try {
-      const clipboardItems = await navigator.clipboard.read();
-      for (const clipboardItem of clipboardItems) {
-        for (const type of clipboardItem.types) {
-          if (type.startsWith('image/')) {
-            const blob = await clipboardItem.getType(type);
-            processImageBlob(blob);
-            return;
-          }
-        }
-      }
-      alert('No se encontró ninguna imagen en el portapapeles');
-    } catch (error) {
-      console.error('Error al acceder al portapapeles:', error);
-      alert('No se pudo acceder al portapapeles. Intenta usar Ctrl+V o seleccionar un archivo.');
-    }
-  };
-
   const handleFileSelect = (event) => {
     const file = event.target.files[0];
     if (file && file.type.startsWith('image/')) {
@@ -82,14 +57,12 @@ export default function Home() {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(ocrText);
       } else {
-        // Fallback para navegadores más antiguos
         if (textAreaRef.current) {
           textAreaRef.current.select();
           document.execCommand('copy');
         }
       }
     } catch (error) {
-      // Fallback si falla la API moderna
       if (textAreaRef.current) {
         textAreaRef.current.select();
         document.execCommand('copy');
@@ -109,12 +82,7 @@ export default function Home() {
             Pega una imagen con <span className="font-bold">Ctrl + V</span> o usa los botones
           </p>
           
-          {/* Botones para móviles */}
           <div className="flex flex-col sm:flex-row gap-3 mb-4">
-            {canPasteFromClipboard && (
-              
-            )}
-            
             <button
               onClick={() => fileInputRef.current?.click()}
               className="flex-1 bg-orange-600 text-white font-semibold py-2 px-4 rounded-xl hover:bg-orange-700 transition duration-200 text-sm md:text-base"
