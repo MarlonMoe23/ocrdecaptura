@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import Tesseract from 'tesseract.js';
 
 export default function Home() {
   const [imageSrc, setImageSrc] = useState(null);
@@ -28,12 +29,22 @@ export default function Home() {
     const src = URL.createObjectURL(blob);
     setImageSrc(src);
     setOcrText('');
-    // Simulamos OCR para la demo
-    setTimeout(() => {
-      setOcrText('Este es texto de ejemplo extraído de la imagen. Puedes editarlo aquí y luego copiarlo al portapapeles.');
-      setIsProcessing(false);
-    }, 2000);
+    runOCR(src);
+  };
+
+  const runOCR = async (image) => {
     setIsProcessing(true);
+    try {
+      const result = await Tesseract.recognize(image, 'eng+spa', {
+        logger: (m) => console.log(m),
+      });
+      setOcrText(result.data.text);
+    } catch (error) {
+      setOcrText('Error al procesar imagen');
+      console.error(error);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleFileSelect = (event) => {
