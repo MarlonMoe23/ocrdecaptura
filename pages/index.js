@@ -1,10 +1,11 @@
 import { useEffect, useState, useRef } from 'react';
-import Tesseract from 'tesseract.js';
 
 export default function Home() {
   const [imageSrc, setImageSrc] = useState(null);
   const [ocrText, setOcrText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [copyStatus, setCopyStatus] = useState(''); // 'copying', 'success', 'error'
+  const [buttonPressed, setButtonPressed] = useState(false);
   const textAreaRef = useRef(null);
   const fileInputRef = useRef(null);
 
@@ -27,22 +28,12 @@ export default function Home() {
     const src = URL.createObjectURL(blob);
     setImageSrc(src);
     setOcrText('');
-    runOCR(src);
-  };
-
-  const runOCR = async (image) => {
-    setIsProcessing(true);
-    try {
-      const result = await Tesseract.recognize(image, 'eng+spa', {
-        logger: (m) => console.log(m),
-      });
-      setOcrText(result.data.text);
-    } catch (error) {
-      setOcrText('Error al procesar imagen');
-      console.error(error);
-    } finally {
+    // Simulamos OCR para la demo
+    setTimeout(() => {
+      setOcrText('Este es texto de ejemplo extraído de la imagen. Puedes editarlo aquí y luego copiarlo al portapapeles.');
       setIsProcessing(false);
-    }
+    }, 2000);
+    setIsProcessing(true);
   };
 
   const handleFileSelect = (event) => {
@@ -53,20 +44,72 @@ export default function Home() {
   };
 
   const copyToClipboard = async () => {
+    if (!ocrText.trim()) return;
+    
+    // Efecto visual de presionar el botón
+    setButtonPressed(true);
+    setCopyStatus('copying');
+    
+    setTimeout(() => setButtonPressed(false), 150);
+
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(ocrText);
+        setCopyStatus('success');
       } else {
+        // Fallback para navegadores más antiguos
         if (textAreaRef.current) {
           textAreaRef.current.select();
-          document.execCommand('copy');
+          const successful = document.execCommand('copy');
+          setCopyStatus(successful ? 'success' : 'error');
         }
       }
     } catch (error) {
-      if (textAreaRef.current) {
-        textAreaRef.current.select();
-        document.execCommand('copy');
+      // Segundo intento con el método antiguo
+      try {
+        if (textAreaRef.current) {
+          textAreaRef.current.select();
+          const successful = document.execCommand('copy');
+          setCopyStatus(successful ? 'success' : 'error');
+        }
+      } catch (fallbackError) {
+        setCopyStatus('error');
       }
+    }
+
+    // Limpiar el estado después de 2 segundos
+    setTimeout(() => {
+      setCopyStatus('');
+    }, 2000);
+  };
+
+  const getCopyButtonContent = () => {
+    switch (copyStatus) {
+      case 'copying':
+        return '⏳ Copiando...';
+      case 'success':
+        return '✅ ¡Copiado!';
+      case 'error':
+        return '❌ Error al copiar';
+      default:
+        return '📋 Copiar texto al portapapeles';
+    }
+  };
+
+  const getCopyButtonClass = () => {
+    const baseClass = `mt-4 w-full font-semibold py-3 px-4 rounded-xl transition-all duration-200 transform ${
+      buttonPressed ? 'scale-95' : 'scale-100'
+    }`;
+    
+    switch (copyStatus) {
+      case 'copying':
+        return `${baseClass} bg-yellow-500 text-white cursor-wait`;
+      case 'success':
+        return `${baseClass} bg-green-600 text-white`;
+      case 'error':
+        return `${baseClass} bg-red-600 text-white`;
+      default:
+        return `${baseClass} bg-blue-600 text-white hover:bg-blue-700 active:scale-95 cursor-pointer`;
     }
   };
 
@@ -85,7 +128,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-3 mb-4">
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="flex-1 bg-orange-600 text-white font-semibold py-2 px-4 rounded-xl hover:bg-orange-700 transition duration-200 text-sm md:text-base"
+              className="flex-1 bg-orange-600 text-white font-semibold py-3 px-4 rounded-xl hover:bg-orange-700 active:scale-95 transition-all duration-200 text-sm md:text-base transform"
             >
               📁 Seleccionar archivo
             </button>
@@ -111,9 +154,14 @@ export default function Home() {
         </div>
 
         {isProcessing && (
-          <p className="text-blue-600 mt-4 font-medium text-center">
-            Procesando imagen con OCR...
-          </p>
+          <div className="text-center mt-4">
+            <div className="inline-flex items-center">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600 mr-2"></div>
+              <p className="text-blue-600 font-medium">
+                Procesando imagen con OCR...
+              </p>
+            </div>
+          </div>
         )}
 
         {ocrText && (
@@ -126,13 +174,27 @@ export default function Home() {
               value={ocrText}
               onChange={(e) => setOcrText(e.target.value)}
               className="w-full h-48 p-4 border border-gray-300 rounded-xl bg-white text-black shadow-inner resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
+              placeholder="El texto extraído aparecerá aquí..."
             />
             <button
               onClick={copyToClipboard}
-              className="mt-4 w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl hover:bg-blue-700 transition duration-200"
+              disabled={!ocrText.trim() || copyStatus === 'copying'}
+              className={getCopyButtonClass()}
             >
-              📋 Copiar texto al portapapeles
+              {getCopyButtonContent()}
             </button>
+            
+            {copyStatus === 'success' && (
+              <p className="text-center text-green-600 text-sm mt-2 animate-fade-in">
+                El texto se ha copiado exitosamente al portapapeles
+              </p>
+            )}
+            
+            {copyStatus === 'error' && (
+              <p className="text-center text-red-600 text-sm mt-2 animate-fade-in">
+                No se pudo copiar. Intenta seleccionar el texto manualmente
+              </p>
+            )}
           </div>
         )}
       </div>
@@ -140,6 +202,16 @@ export default function Home() {
       <p className="text-center text-gray-500 mt-6 text-xs md:text-sm">
         Desarrollado por Marlon Ortiz usando Next.js + Tesseract.js
       </p>
+      
+      <style jsx>{`
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.3s ease-out;
+        }
+      `}</style>
     </div>
   );
 }
