@@ -131,7 +131,7 @@ export default function Home() {
           🧠 OCR del portapapeles App 
         </h1>
         <p className="text-gray-600 text-base md:text-lg mb-4">
-            Pega una imagen con <span className="font-bold">Ctrl + V</span> o usa los botones
+            Pega una imagen con <span className="font-bold">Ctrl + V</span> o usa el botón:
           </p>
           
           <div className="flex flex-col sm:flex-row gap-3 mb-4">
