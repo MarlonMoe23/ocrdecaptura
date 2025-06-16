@@ -130,9 +130,7 @@ export default function Home() {
         <h1 className="text-2xl md:text-3xl font-bold text-center mb-6 text-gray-800">
           🧠 OCR del portapapeles App 
         </h1>
-        
-        <div className="border-4 border-dashed border-gray-300 rounded-xl p-4 md:p-6 bg-gray-50 text-center">
-          <p className="text-gray-600 text-base md:text-lg mb-4">
+        <p className="text-gray-600 text-base md:text-lg mb-4">
             Pega una imagen con <span className="font-bold">Ctrl + V</span> o usa los botones
           </p>
           
@@ -144,6 +142,8 @@ export default function Home() {
               📁 Seleccionar archivo
             </button>
           </div>
+        <div className="border-4 border-dashed border-gray-300 rounded-xl p-4 md:p-6 bg-gray-50 text-center">
+          
 
           <input
             ref={fileInputRef}
